@@ -20,7 +20,7 @@ var Decode = DefaultDecoder
 
 // DefaultDecoder detects the correct decoder for use on an HTTP request and
 // marshals into a given interface.
-func DefaultDecoder(r *http.Request, v interface{}) error {
+func DefaultDecoder(r *http.Request, v any) error {
 	var err error
 
 	switch GetRequestContentType(r) {
@@ -38,19 +38,19 @@ func DefaultDecoder(r *http.Request, v interface{}) error {
 }
 
 // DecodeJSON decodes a given reader into an interface using the json decoder.
-func DecodeJSON(r io.Reader, v interface{}) error {
+func DecodeJSON(r io.Reader, v any) error {
 	defer io.Copy(io.Discard, r) //nolint:errcheck
 	return json.NewDecoder(r).Decode(v)
 }
 
 // DecodeXML decodes a given reader into an interface using the xml decoder.
-func DecodeXML(r io.Reader, v interface{}) error {
+func DecodeXML(r io.Reader, v any) error {
 	defer io.Copy(io.Discard, r) //nolint:errcheck
 	return xml.NewDecoder(r).Decode(v)
 }
 
 // DecodeForm decodes a given reader into an interface using the form decoder.
-func DecodeForm(r io.Reader, v interface{}) error {
+func DecodeForm(r io.Reader, v any) error {
 	decoder := form.NewDecoder(r) //nolint:errcheck
 	return decoder.Decode(v)
 }

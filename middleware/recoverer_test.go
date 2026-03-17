@@ -29,8 +29,8 @@ func TestRecoverer(t *testing.T) {
 	res, _ := testRequest(t, ts, "GET", "/", nil)
 	assertEqual(t, res.StatusCode, http.StatusInternalServerError)
 
-	lines := strings.Split(buf.String(), "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(buf.String(), "\n")
+	for line := range lines {
 		if strings.HasPrefix(strings.TrimSpace(line), "->") {
 			if !strings.Contains(line, "panickingHandler") {
 				t.Fatalf("First func call line should refer to panickingHandler, but actual line:\n%v\n", line)

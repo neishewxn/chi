@@ -4,10 +4,10 @@ import (
 	"compress/flate"
 	"compress/gzip"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
-	"io"
-	"io/ioutil"
+
 	"strings"
 	"testing"
 
@@ -96,7 +96,6 @@ func TestCompressor(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			resp, respString := testRequestWithAcceptedEncodings(t, ts, "GET", tc.path, tc.acceptedEncodings...)
 			if respString != "textstring" {
@@ -208,7 +207,7 @@ func decodeResponseBody(t *testing.T, resp *http.Response) string {
 	default:
 		reader = resp.Body
 	}
-	respBody, err := ioutil.ReadAll(reader)
+	respBody, err := io.ReadAll(reader)
 	if err != nil {
 		t.Fatal(err)
 		return ""

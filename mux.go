@@ -51,7 +51,7 @@ type Mux struct {
 // interface.
 func NewMux() *Mux {
 	mux := &Mux{tree: &node{}, pool: &sync.Pool{}}
-	mux.pool.New = func() interface{} {
+	mux.pool.New = func() any {
 		return NewRouteContext()
 	}
 	return mux

@@ -12,7 +12,7 @@ import (
 
 // M is a convenience alias for quickly building a map structure that is going
 // out to a responder. Just a short-hand.
-type M map[string]interface{}
+type M map[string]any
 
 // Respond is a package-level variable set to our default Responder. We do this
 // because it allows you to set render.Respond to another function with the
@@ -34,7 +34,7 @@ func Status(r *http.Request, status int) {
 
 // Respond handles streaming JSON and XML responses, automatically setting the
 // Content-Type based on request headers. It will default to a JSON response.
-func DefaultResponder(w http.ResponseWriter, r *http.Request, v interface{}) {
+func DefaultResponder(w http.ResponseWriter, r *http.Request, v any) {
 	if v != nil {
 		switch reflect.TypeOf(v).Kind() {
 		case reflect.Chan:
@@ -90,7 +90,7 @@ func HTML(w http.ResponseWriter, r *http.Request, v string) {
 
 // JSON marshals 'v' to JSON, automatically escaping HTML and setting the
 // Content-Type as application/json.
-func JSON(w http.ResponseWriter, r *http.Request, v interface{}) {
+func JSON(w http.ResponseWriter, r *http.Request, v any) {
 	buf := &bytes.Buffer{}
 	enc := json.NewEncoder(buf)
 	enc.SetEscapeHTML(true)
@@ -109,7 +109,7 @@ func JSON(w http.ResponseWriter, r *http.Request, v interface{}) {
 // XML marshals 'v' to XML, setting the Content-Type as application/xml. It
 // will automatically prepend a generic XML header (see encoding/xml.Header) if
 // one is not found in the first 100 bytes of 'v'.
-func XML(w http.ResponseWriter, r *http.Request, v interface{}) {
+func XML(w http.ResponseWriter, r *http.Request, v any) {
 	b, err := xml.Marshal(v)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -122,10 +122,7 @@ func XML(w http.ResponseWriter, r *http.Request, v interface{}) {
 	}
 
 	// Try to find <?xml header in first 100 bytes (just in case there're some XML comments).
-	findHeaderUntil := len(b)
-	if findHeaderUntil > 100 {
-		findHeaderUntil = 100
-	}
+	findHeaderUntil := min(len(b), 100)
 	if !bytes.Contains(b[:findHeaderUntil], []byte("<?xml")) {
 		// No header found. Print it out first.
 		w.Write([]byte(xml.Header)) //nolint:errcheck
@@ -139,7 +136,7 @@ func NoContent(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func channelEventStream(w http.ResponseWriter, r *http.Request, v interface{}) {
+func channelEventStream(w http.ResponseWriter, r *http.Request, v any) {
 	if reflect.TypeOf(v).Kind() != reflect.Chan {
 		panic(fmt.Sprintf("render: event stream expects a channel, not %v", reflect.TypeOf(v).Kind()))
 	}
@@ -184,13 +181,13 @@ func channelEventStream(w http.ResponseWriter, r *http.Request, v interface{}) {
 
 			bytes, err := json.Marshal(v)
 			if err != nil {
-				w.Write([]byte(fmt.Sprintf("event: error\ndata: {\"error\":\"%v\"}\n\n", err))) //nolint:errcheck
+				w.Write(fmt.Appendf(nil, "event: error\ndata: {\"error\":\"%v\"}\n\n", err)) //nolint:errcheck
 				if f, ok := w.(http.Flusher); ok {
 					f.Flush()
 				}
 				continue
 			}
-			w.Write([]byte(fmt.Sprintf("event: data\ndata: %s\n\n", bytes))) //nolint:errcheck
+			w.Write(fmt.Appendf(nil, "event: data\ndata: %s\n\n", bytes)) //nolint:errcheck
 			if f, ok := w.(http.Flusher); ok {
 				f.Flush()
 			}
@@ -199,10 +196,10 @@ func channelEventStream(w http.ResponseWriter, r *http.Request, v interface{}) {
 }
 
 // channelIntoSlice buffers channel data into a slice.
-func channelIntoSlice(w http.ResponseWriter, r *http.Request, from interface{}) interface{} {
+func channelIntoSlice(w http.ResponseWriter, r *http.Request, from any) any {
 	ctx := r.Context()
 
-	var to []interface{}
+	var to []any
 	for {
 		switch chosen, recv, ok := reflect.Select([]reflect.SelectCase{
 			{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(ctx.Done())},

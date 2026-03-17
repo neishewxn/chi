@@ -22,6 +22,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -76,7 +77,7 @@ type Options struct {
 
 // Logger generic interface for logger
 type Logger interface {
-	Printf(string, ...interface{})
+	Printf(string, ...any)
 }
 
 // Cors http handler
@@ -150,9 +151,9 @@ func New(options Options) *Cors {
 				c.allowedOrigins = nil
 				c.allowedWOrigins = nil
 				break
-			} else if i := strings.IndexByte(origin, '*'); i >= 0 {
+			} else if before, after, ok := strings.Cut(origin, "*"); ok {
 				// Split the origin in two: start and end string without the *
-				w := wildcard{origin[0:i], origin[i+1:]}
+				w := wildcard{before, after}
 				c.allowedWOrigins = append(c.allowedWOrigins, w)
 			} else {
 				c.allowedOrigins = append(c.allowedOrigins, origin)
@@ -167,12 +168,9 @@ func New(options Options) *Cors {
 	} else {
 		// Origin is always appended as some browsers will always request for this header at preflight
 		c.allowedHeaders = convert(append(options.AllowedHeaders, "Origin"), http.CanonicalHeaderKey)
-		for _, h := range options.AllowedHeaders {
-			if h == "*" {
-				c.allowedHeadersAll = true
-				c.allowedHeaders = nil
-				break
-			}
+		if slices.Contains(options.AllowedHeaders, "*") {
+			c.allowedHeadersAll = true
+			c.allowedHeaders = nil
 		}
 	}
 
@@ -338,7 +336,7 @@ func (c *Cors) handleActualRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 // convenience method. checks if a logger is set.
-func (c *Cors) logf(format string, a ...interface{}) {
+func (c *Cors) logf(format string, a ...any) {
 	if c.Log != nil {
 		c.Log.Printf(format, a...)
 	}
@@ -354,10 +352,8 @@ func (c *Cors) isOriginAllowed(r *http.Request, origin string) bool {
 		return true
 	}
 	origin = strings.ToLower(origin)
-	for _, o := range c.allowedOrigins {
-		if o == origin {
-			return true
-		}
+	if slices.Contains(c.allowedOrigins, origin) {
+		return true
 	}
 	for _, w := range c.allowedWOrigins {
 		if w.match(origin) {
@@ -379,12 +375,7 @@ func (c *Cors) isMethodAllowed(method string) bool {
 		// Always allow preflight requests
 		return true
 	}
-	for _, m := range c.allowedMethods {
-		if m == method {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(c.allowedMethods, method)
 }
 
 // areHeadersAllowed checks if a given list of headers are allowed to used within
@@ -395,13 +386,7 @@ func (c *Cors) areHeadersAllowed(requestedHeaders []string) bool {
 	}
 	for _, header := range requestedHeaders {
 		header = http.CanonicalHeaderKey(header)
-		found := false
-		for _, h := range c.allowedHeaders {
-			if h == header {
-				found = true
-				break
-			}
-		}
+		found := slices.Contains(c.allowedHeaders, header)
 		if !found {
 			return false
 		}

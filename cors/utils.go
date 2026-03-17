@@ -31,13 +31,13 @@ func parseHeaderList(headerList string) []string {
 	upper := true
 	// Estimate the number headers in order to allocate the right splice size
 	t := 0
-	for i := 0; i < l; i++ {
+	for i := range l {
 		if headerList[i] == ',' {
 			t++
 		}
 	}
 	headers := make([]string, 0, t)
-	for i := 0; i < l; i++ {
+	for i := range l {
 		b := headerList[i]
 		if b >= 'a' && b <= 'z' {
 			if upper {

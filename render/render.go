@@ -46,7 +46,7 @@ func RenderList(w http.ResponseWriter, r *http.Request, l []Renderer) error {
 
 func isNil(f reflect.Value) bool {
 	switch f.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
 		return f.IsNil()
 	default:
 		return false
@@ -56,7 +56,7 @@ func isNil(f reflect.Value) bool {
 // Executed top-down
 func renderer(w http.ResponseWriter, r *http.Request, v Renderer) error {
 	rv := reflect.ValueOf(v)
-	if rv.Kind() == reflect.Ptr {
+	if rv.Kind() == reflect.Pointer {
 		rv = rv.Elem()
 	}
 
@@ -71,8 +71,8 @@ func renderer(w http.ResponseWriter, r *http.Request, v Renderer) error {
 	}
 
 	// For structs, we call Render on each field that implements Renderer
-	for i := 0; i < rv.NumField(); i++ {
-		f := rv.Field(i)
+	for _, f := range rv.Fields() {
+		f := f
 		if f.Type().Implements(rendererType) {
 
 			if isNil(f) {
@@ -93,7 +93,7 @@ func renderer(w http.ResponseWriter, r *http.Request, v Renderer) error {
 // Executed bottom-up
 func binder(r *http.Request, v Binder) error {
 	rv := reflect.ValueOf(v)
-	if rv.Kind() == reflect.Ptr {
+	if rv.Kind() == reflect.Pointer {
 		rv = rv.Elem()
 	}
 
@@ -103,8 +103,8 @@ func binder(r *http.Request, v Binder) error {
 	}
 
 	// For structs, we call Bind on each field that implements Binder
-	for i := 0; i < rv.NumField(); i++ {
-		f := rv.Field(i)
+	for _, f := range rv.Fields() {
+		f := f
 		if f.Type().Implements(binderType) {
 
 			if isNil(f) {
@@ -127,8 +127,8 @@ func binder(r *http.Request, v Binder) error {
 }
 
 var (
-	rendererType = reflect.TypeOf(new(Renderer)).Elem()
-	binderType   = reflect.TypeOf(new(Binder)).Elem()
+	rendererType = reflect.TypeFor[Renderer]()
+	binderType   = reflect.TypeFor[Binder]()
 )
 
 // contextKey is a value for use with context.WithValue. It's used as

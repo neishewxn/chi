@@ -51,7 +51,7 @@ func Recoverer(next http.Handler) http.Handler {
 // for ability to test the PrintPrettyStack function
 var recovererErrorWriter io.Writer = os.Stderr
 
-func PrintPrettyStack(rvr interface{}) {
+func PrintPrettyStack(rvr any) {
 	debugStack := debug.Stack()
 	s := prettyStack{}
 	out, err := s.parse(debugStack, rvr)
@@ -66,7 +66,7 @@ func PrintPrettyStack(rvr interface{}) {
 type prettyStack struct {
 }
 
-func (s prettyStack) parse(debugStack []byte, rvr interface{}) ([]byte, error) {
+func (s prettyStack) parse(debugStack []byte, rvr any) ([]byte, error) {
 	var err error
 	useColor := true
 	buf := &bytes.Buffer{}

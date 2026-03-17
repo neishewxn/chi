@@ -329,7 +329,7 @@ func (n *node) replaceChild(label, tail byte, child *node) {
 
 func (n *node) getEdge(ntyp nodeTyp, label, tail byte, prefix string) *node {
 	nds := n.children[ntyp]
-	for i := 0; i < len(nds); i++ {
+	for i := range nds {
 		if nds[i].label == label && nds[i].tail == tail {
 			if ntyp == ntRegexp && nds[i].prefix != prefix {
 				continue
@@ -430,7 +430,7 @@ func (n *node) findRoute(rctx *Context, method methodTyp, path string) *node {
 			}
 
 			// serially loop through each node grouped by the tail delimiter
-			for idx := 0; idx < len(nds); idx++ {
+			for idx := range nds {
 				xn = nds[idx]
 
 				// label for param nodes is the delimiter byte
