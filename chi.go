@@ -9,8 +9,8 @@
 //	import (
 //		"net/http"
 //
-//		"github.com/metacubex/chi"
-//		"github.com/metacubex/chi/middleware"
+//		"github.com/neishewxn/chi"
+//		"github.com/neishewxn/chi/middleware"
 //	)
 //
 //	func main() {

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/metacubex/chi"
+	"github.com/neishewxn/chi"
 )
 
 var testContent = []byte("Hello world!")

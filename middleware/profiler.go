@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/http/pprof"
 
-	"github.com/metacubex/chi"
+	"github.com/neishewxn/chi"
 )
 
 // Profiler is a convenient subrouter used for mounting net/http/pprof. ie.

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/metacubex/chi"
+	"github.com/neishewxn/chi"
 )
 
 func panickingHandler(http.ResponseWriter, *http.Request) { panic("foo") }

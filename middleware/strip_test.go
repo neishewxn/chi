@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/metacubex/chi"
+	"github.com/neishewxn/chi"
 )
 
 func TestStripSlashes(t *testing.T) {

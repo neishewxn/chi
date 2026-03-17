@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/metacubex/chi"
+	"github.com/neishewxn/chi"
 )
 
 // SupressNotFound will quickly respond with a 404 if the route is not found

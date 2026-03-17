@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/metacubex/chi"
+	"github.com/neishewxn/chi"
 )
 
 func TestURLFormat(t *testing.T) {

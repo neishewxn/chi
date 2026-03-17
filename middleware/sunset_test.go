@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/metacubex/chi"
+	"github.com/neishewxn/chi"
 )
 
 func TestSunset(t *testing.T) {

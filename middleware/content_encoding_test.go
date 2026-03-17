@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/metacubex/chi"
+	"github.com/neishewxn/chi"
 )
 
 func TestContentEncodingMiddleware(t *testing.T) {

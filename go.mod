@@ -1,4 +1,4 @@
-module github.com/metacubex/chi
+module github.com/neishewxn/chi
 
 go 1.26
 

@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/metacubex/chi"
+	"github.com/neishewxn/chi"
 )
 
 // GetHead automatically route undefined HEAD requests to GET handlers.
